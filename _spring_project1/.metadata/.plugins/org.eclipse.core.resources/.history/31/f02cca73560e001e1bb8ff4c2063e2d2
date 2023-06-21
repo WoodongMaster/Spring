@@ -1,0 +1,47 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	.container{
+		width:500px;	
+		left:50%;
+	}
+	
+	form{
+		align:center;
+		width:500px;
+	}
+</style>
+<meta charset="UTF-8">
+<title>login page</title>
+</head>
+<body>
+<jsp:include page="../layout/header.jsp"></jsp:include>
+	<h1 align="center">로그인 페이지</h1><br><br>
+	<div class="container">
+	<form action="/user/login" method="post">
+	<div class="input-group mb-3">
+  <span class="input-group-text" id="basic-addon1">ID</span>
+  <input type="text" class="form-control" name="id" placeholder="ID를 입력해주세요" aria-label="Username" aria-describedby="basic-addon1">
+</div>
+	<div class="input-group mb-3">
+  <span class="input-group-text" id="basic-addon1">PW</span>
+  <input type="password" class="form-control" name="pw" placeholder="비밀번호를 입력해주세요" aria-label="Username" aria-describedby="basic-addon1">
+</div>
+	<div align="center">
+		<button type="submit" class="btn btn-success">로그인</button>
+		<a href="/user/home"><button type="button" class="btn btn-secondary">메인으로</button></a>
+		</div>
+	</form>
+	</div>
+	<script type="text/javascript">
+		const msg_login = `<c:out value="${msg_login}"/>`;
+		console.log(msg_login);
+		if (msg_login == '0') {
+			alert("로그인 정보가 올바르지 않습니다");
+		}
+	</script>
+</body>
+</html>

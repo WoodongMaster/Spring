@@ -1,0 +1,145 @@
+package com.myweb.www.controller;
+
+import javax.inject.Inject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+//import org.slf4j.Logger;
+
+//import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.myweb.www.domain.UserVO;
+import com.myweb.www.service.UserService;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/user/*")
+@Controller
+public class UserController {
+	
+//	private static final Logger logger = LoggerFactory.getLogger("UserController.class");
+// => @Slf4j or (윗 문장 + logger import) 골라서 사용
+	
+	@Inject
+	// ServiceImpl과 자동연결
+	private UserService usv;
+	
+	@GetMapping("home")
+	public String home(Model m) {
+		return "/home";
+	}
+	
+	@GetMapping("/signup")
+	public String signupGet(Model m) {
+		log.info("회원가입 get 접근");
+//		m.addAttribute("msg_home",1);
+		return "/user/signup";
+	}
+	
+	@PostMapping("/signup")
+	public String signupPost(Model m, UserVO uvo) {
+		log.info("회원가입 접근");
+		log.info(">>> uvo : "+uvo.toString());
+		int isOk = usv.signUp(uvo);
+		if(isOk>0) {
+			m.addAttribute("msg_signup", isOk);
+		}else {
+			m.addAttribute("msg_signup", isOk);
+		}
+		return "home";
+	}
+	
+	@GetMapping("/login")
+	public String loginGet(Model m) {
+		return "/user/login";
+	}
+	
+	@PostMapping("/login")
+	public String loginPost(Model m, UserVO uvo, HttpServletRequest request) {
+		log.info(">>> user"+ uvo.toString());
+		UserVO loginVO = usv.logIn(uvo);
+		if(loginVO == null) {
+			log.info(">>> 로그인 실패");
+			m.addAttribute("msg_login", 0);
+			return "/login";
+		}else {
+			log.info(">>> 로그인 성공");
+			HttpSession ses = request.getSession();
+			ses.setAttribute("ses", loginVO);
+			ses.setMaxInactiveInterval(60*10);
+			m.addAttribute("msg_login", 1);
+			return "home";	
+		}
+		
+	}
+	
+	@GetMapping("/logout")
+	public String logout(Model m, HttpServletRequest request) {
+		request.getSession().removeAttribute("ses");
+		request.getSession().invalidate();
+		m.addAttribute("msg_logout", 1);
+//		String id = ((UserVO)ses.getAttribute("ses")).getId();
+		return "home";
+	}
+	
+	@GetMapping("/mydetail")
+	public String mydetailGet(Model m, HttpServletRequest request) {
+		UserVO loginVO = (UserVO)request.getSession().getAttribute("ses");
+		String id = loginVO.getId();
+		UserVO uvo = usv.mydetail(id);
+		m.addAttribute("uvo", uvo);
+		return "/user/mydetail";
+	}
+	
+	@GetMapping("/modify")
+	public String modifyGet(Model m, @RequestParam("id")String id) {
+		UserVO uvo = usv.mydetail(id);
+		m.addAttribute("uvo", uvo);
+		return "/user/modify";
+	}
+	
+	@PostMapping("/modify")
+	public String modifyPost(Model m, UserVO uvo, HttpServletRequest request) {
+		log.info("modify 받아온 uvo : "+ uvo.toString());
+		int isOk = usv.modify(uvo);
+		if(isOk > 0) {			
+			request.getSession().removeAttribute("ses");
+			request.getSession().invalidate();
+			m.addAttribute("msg_logout", 1);		
+		}else {
+			m.addAttribute("msg_modify", 0);
+		}
+		return "home";
+	}
+	
+	@GetMapping(value="{pw}" ,produces = {MediaType.TEXT_PLAIN_VALUE})
+	public ResponseEntity<String> pwcheck(@PathVariable("pw")String pw, HttpServletRequest request) {
+		UserVO loginVO = (UserVO)request.getSession().getAttribute("ses");
+		String check_id =loginVO.getId();
+		log.info("받아온 pw : "+pw);
+		String check_pw = pw;
+		UserVO checkVO = new UserVO();
+		checkVO.setId(check_id);
+		checkVO.setPw(check_pw);
+		
+		int isOk = usv.pwcheck(checkVO);
+		return isOk> 0? new ResponseEntity<String>("1", HttpStatus.OK)
+				: new ResponseEntity<String>("0", HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+}

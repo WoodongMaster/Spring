@@ -1,0 +1,123 @@
+package com.myweb.www.service;
+
+import java.util.List;
+
+
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.myweb.www.domain.BoardDTO;
+import com.myweb.www.domain.BoardVO;
+import com.myweb.www.domain.FileVO;
+import com.myweb.www.domain.PagingVO;
+import com.myweb.www.repository.BoardDAO;
+import com.myweb.www.repository.FileDAO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class BoardServiceImpl implements BoardService{
+	
+	@Inject
+	private BoardDAO bdao;
+	
+	@Inject
+	private FileDAO fdao;
+
+	@Override
+	public int register(BoardVO bvo) {
+		log.info(">>> register service 진입");
+		return bdao.register(bvo);
+	}
+
+	@Override
+	public List<BoardVO> showlist(PagingVO pvo) {
+		log.info(">>> showlist service 진입");
+		return bdao.showlist(pvo);
+	}
+
+//	@Override
+//	public BoardVO showpost(int bno) {
+//		log.info(">>> showpost service 진입");
+//		
+//		return bdao.showpost(bno);
+//	}
+
+	@Override
+	public int modify(BoardVO bvo) {
+		log.info(">>> modify service 진입");
+		return bdao.modify(bvo);
+	}
+
+	@Override
+	public int delete(int bno) {
+		log.info(">>> delete service 진입");
+		int isOk = bdao.delete(bno)*fdao.delete(bno);
+		return isOk;
+	}
+
+	@Override
+	public void upcount(int bno) {
+		bdao.upcount(bno);
+	}
+
+	@Override
+	public int getTotalCount() {
+		
+		return bdao.getTotalCount();
+	}
+
+	@Override
+	public int register(BoardDTO bdto) {
+		log.info(">>> BoardDTO register service 진입");
+		int isOk = bdao.register(bdto.getBvo());
+		if(bdto.getFlist() == null) {
+			return isOk;
+		}else {
+			if(isOk>0 && bdto.getFlist().size()>0) {
+				int bno = bdao.selectBno();
+				for(FileVO fvo : bdto.getFlist()) {
+					fvo.setBno(bno);
+					log.info(">>> insert file : "+fvo.toString());
+					isOk *= fdao.insertFile(fvo);
+				}
+			}
+		}
+		return isOk;
+	}
+
+	@Override
+	public BoardDTO showpost(int bno) {
+		log.info(">>> BoardDTO post service 진입");
+		BoardDTO bdto = new BoardDTO();
+		bdto.setBvo(bdao.showpost(bno));
+		bdto.setFlist(fdao.getFileList(bno));
+		return bdto;
+	}
+
+	@Override
+	public int modify_file(BoardDTO bdto) {
+		log.info(">>> BoardDTO modify service 진입");
+		int isOk = bdao.modify(bdto.getBvo());
+		if(bdto.getFlist() == null) {
+			return isOk;
+		}
+		fdao.delete(bdto.getBvo().getBno());
+		for(FileVO fvo : bdto.getFlist()) {
+			fvo.setBno(bdto.getBvo().getBno());
+			log.info(">>> insert file : "+fvo.toString());
+			isOk *= fdao.insertFile(fvo);
+		}
+		
+		return isOk;
+	}
+
+	@Override
+	public int removeFile(String uuid) {
+		
+		return fdao.delete(uuid);
+	}
+}

@@ -1,0 +1,33 @@
+package com.myweb.www.repository;
+
+import java.util.List;
+
+import com.myweb.www.domain.BoardDTO;
+import com.myweb.www.domain.BoardVO;
+import com.myweb.www.domain.PagingVO;
+
+public interface BoardDAO {
+
+	int register(BoardVO bvo);
+
+	List<BoardVO> showlist(PagingVO pvo);
+
+	BoardVO showpost(int bno);
+
+	int modify(BoardVO bvo);
+
+	int delete(int bno);
+
+	void upcount(int bno);
+
+	int getTotalCount();
+
+	int register(BoardDTO bdto);
+
+	int selectBno();
+
+	int update_filecnt(BoardVO bvo);
+	
+	int update_commentcnt(BoardVO bvo);
+
+}

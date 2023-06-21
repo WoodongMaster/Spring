@@ -1,0 +1,17 @@
+@charset "UTF-8";
+#topdiv{
+	width : 100%;
+	height : 80px;
+	background-color: red;
+}
+.navbar{
+	float:right;
+	line-height:60px;
+}
+.navbar ul li{
+	display:inline-block;
+	
+}
+.logo{
+	float:left;
+}

@@ -1,0 +1,55 @@
+package com.myweb.www.service;
+
+import java.util.List;
+
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import com.myweb.www.domain.BoardVO;
+import com.myweb.www.domain.CommentVO;
+import com.myweb.www.repository.BoardDAO;
+import com.myweb.www.repository.CommentDAO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class CommentServiceImpl implements CommentService {
+
+	@Inject
+	private CommentDAO cdao;
+	
+	private BoardDAO bdao;
+
+	@Override
+	public int post(CommentVO cvo) {
+		log.info("comment register service 진입");
+		int isOk = cdao.post(cvo);
+		return isOk;
+	}
+
+	@Override
+	public List<CommentVO> getlist(int bno) {
+		log.info("comment getlist 진입");
+		int cnt = cdao.getlist(bno).size();
+		BoardVO bvo = new BoardVO();
+		bvo.setBno(bno);
+		bvo.setComment_cnt(cnt);
+		log.info("댓글 개수 bvo 객체 : "+bvo.toString());
+		return cdao.getlist(bno);
+	}
+
+	@Override
+	public int modify(CommentVO cvo) {
+		log.info("comment modify 진입");
+		return cdao.edit(cvo);
+	}
+
+	@Override
+	public int delete(int cno) {
+		log.info("comment delete 진입");
+		return cdao.delete(cno);
+	}
+}

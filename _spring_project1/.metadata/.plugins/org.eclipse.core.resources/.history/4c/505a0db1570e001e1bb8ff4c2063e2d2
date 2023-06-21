@@ -1,0 +1,7 @@
+@charset "UTF-8";
+
+.maindiv{
+    min-height: calc(100% - 160px);   
+	background-image: url('https://p4.wallpaperbetter.com/wallpaper/277/66/460/cartoon-rainbow-spongebob-wallpaper-preview.jpg');
+	background-size:cover;
+}

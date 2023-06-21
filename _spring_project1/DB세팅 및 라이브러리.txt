@@ -1,0 +1,83 @@
+Spring Project 에서 사용할 DB명,user명
+DB명 : springtest
+User명 : springuser
+password : mysql
+
+create database springtest;
+
+create user 'springuser'@'localhost' identified by 'mysql';
+
+grant all privileges on springtest.* to 'springuser'@'localhost' with grant option;
+
+flush privileges;
+
+--유저변경(root to springuser)
+
+create table user(
+id varchar(100) primary key,
+pw varchar(100) not null,
+name varchar(100) not null,
+email varchar(100),
+home varchar(100),
+age int,
+reg_date datetime default now());
+
+package
+- controller
+- domain
+- service
+- repository
+
+BCryptPasswordEncoder : 패스워드 암호화 클래스
+암호화 하기위한 라이브러리 추가
+spring-security-core-5.5.3
+spring-security-web-5.5.3
+spring-security-config-5.5.3
+
+- board 테이블 생성
+create table board(
+bno int not null auto_increment,
+title varchar(200) not null,
+content text,
+writer varchar(100),
+reg_date datetime default now(),
+read_count int,
+isDel varchar(50) default "N",
+primary key(bno));
+
+1. fileUpload 라이브러리 추가 (pom.xml)
+commons-fileupload 1.4 ㅇ
+commons-io 2.11.0 ㅇ
+thumbnailator-0.4.14 ㅇ
+tika-core 1.28 ㅇ
+tika-parsers 1.28 ㅇ
+
+2. file 경로 설정 xml 추가
+- web.xml : 파일경로 설정
+- servlet-context.xml : 파일 경로 매핑, mutipartResolver bean 설정
+
+3. 파일업로드 할 경로 외부에 설정
+- D:\_myweb\_java\fileUpload
+- web.xml 파일 설정시 설정해야함
+
+4. web.xml
+- 파일 최대 크기 설정
+- request 최대한도 설정
+- file 담을 메모리 사이즈 설정
+
+5. servlet-context.xml
+- multipartResolver bean 설정
+- resource 경로 설정
+
+6. 여러 파일을 저장할 수 있는 file 테이블 생성
+- uuid(범용 고유 식별자) : random한 고유번호를 설정
+
+create table file(
+uuid varchar(256) not null,
+save_path varchar(256) not null,
+file_name varchar(256) not null,
+file_type tinyint(1) default 0,
+bno int,
+file_size int,
+reg_date datetime default now(),
+primary key(uuid));

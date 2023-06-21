@@ -1,0 +1,85 @@
+package com.myweb.www.service;
+
+import javax.inject.Inject;
+
+
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.myweb.www.domain.UserVO;
+import com.myweb.www.repository.UserDAO;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+public class UserServiceImpl implements UserService{
+	
+	@Inject
+	private UserDAO udao;
+	@Inject
+	BCryptPasswordEncoder passwordencoder;
+	
+	@Override
+	public int signUp(UserVO uvo) {
+		log.info(">>> SignUp ServiceImpl 진입");
+		UserVO tmpUser = udao.getUser(uvo.getId()); // 아이디 중복 확인
+		if(tmpUser != null) {
+			return 0;
+		}
+		
+		if(uvo.getId() == null || uvo.getId().length() == 0) {
+			return 0;
+		}
+		
+		if(uvo.getPw() == null || uvo.getPw() == "") {
+			return 0;
+		}
+		
+		String pw = uvo.getPw();
+		// encode(평문 비밀번호) -> 평문 암호화 메서드
+		// matches(원래 비밀번호, 암호화된 비밀번호) -> 기존 비밀번호와 암호화된 비밀번호 비교
+		String encode_pw = passwordencoder.encode(pw); // 기존 비밀번호 pw 암호화
+		uvo.setPw(encode_pw);
+		
+		int isOk = udao.signUp(uvo);
+		return isOk;
+		
+		
+	}
+
+	@Override
+	public UserVO logIn(UserVO uvo) {
+		log.info(">>> LogIn ServiceImpl 진입");
+		UserVO loginVO = udao.getUser(uvo.getId());
+		if(loginVO == null) {
+			return null;
+		}
+		
+		if(passwordencoder.matches(uvo.getPw(),loginVO.getPw())) {
+			log.info(">>> match 결과 : true");
+			return loginVO;
+		}else {			
+			log.info(">>> match 결과 : false");
+			return null;
+		}
+	}
+
+	@Override
+	public UserVO mydetail(String id) {
+		log.info(">>> mydetail ServiceImpl 진입");
+		return udao.mydetail(id);
+	}
+
+	@Override
+	public int pwcheck(UserVO checkVO) {
+		log.info(">>> 패스워드 체크 ServiceImpl 진입");
+		String origin_pw = udao.pwcheck(checkVO);
+		if(passwordencoder.matches(origin_pw, checkVO.getPw())) {
+			int isOk = 1;
+			return isOk;			
+		};
+		
+	}
+}

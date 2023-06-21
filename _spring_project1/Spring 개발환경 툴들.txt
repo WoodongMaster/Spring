@@ -1,0 +1,9 @@
+Spring 개발 환경 툴 버전 체크 사항
+
+- sts 3.9.18 
+- jdk 11 insatall 환경변수 path 등록(完)  java home 해야함
+- tomcat 9 / 4.0  (完)
+- mysql (동일) (完)
+- Lombok 1.18.28 jar (完) -> 설치후 재부팅한 후 바로가기 생성
+
+

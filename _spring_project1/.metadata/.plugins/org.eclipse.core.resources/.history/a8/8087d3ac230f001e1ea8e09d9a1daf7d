@@ -1,0 +1,15 @@
+package com.myweb.www.service;
+
+import com.myweb.www.domain.UserVO;
+
+public interface UserService {
+
+	int signUp(UserVO uvo);
+
+	UserVO logIn(UserVO uvo);
+
+	UserVO mydetail(String id);
+
+	int pwcheck(UserVO checkVO);
+
+}
